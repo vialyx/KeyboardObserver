@@ -18,7 +18,7 @@ class ViewController: UIViewController {
      local intance of KeyboardObserver
      */
     private let keyboard = KeyboardObserver()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -53,6 +53,10 @@ class ViewController: UIViewController {
                  Clear view transform
                  */
                 self.view.transform = .identity
+                /*
+                 Clear activeTextField as it no need after end editing. Keyboard already hidden
+                 */
+                self.activeTextField = nil
             }
         }
         
@@ -61,8 +65,8 @@ class ViewController: UIViewController {
          */
         view.addGestureRecognizer(UITapGestureRecognizer(target: view, action: #selector(UIView.endEditing(_:))))
     }
-
-
+    
+    
 }
 
 // MARK: - UITextFieldDelegate
@@ -77,18 +81,16 @@ extension ViewController: UITextFieldDelegate {
         return true
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        /*
-         Clear activeTextField as it no need after end editing. Keyboard already hidden
-         */
-        activeTextField = nil
-    }
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        /*
-         Hide keyboard by tap to return button on keyboard
-         */
-        view.endEditing(true)
+        if let nextTF = view.viewWithTag(textField.tag + 1) {
+            activeTextField = nextTF as? UITextField
+            nextTF.becomeFirstResponder()
+        } else {
+            /*
+             Switch to next textField
+             */
+            view.endEditing(true)
+        }
         return true
     }
     
